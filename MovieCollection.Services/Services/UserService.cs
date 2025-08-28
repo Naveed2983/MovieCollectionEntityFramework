@@ -45,7 +45,6 @@ namespace MovieCollection.Services.Services
             {
                 throw new UnauthorizedAccessException("Invalid credentials.");
             }
-
             return user;
         }
     }

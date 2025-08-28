@@ -10,6 +10,11 @@ namespace MovieCollection.DAL.Data
 {
     public class MovieContext : DbContext
     {
+    //    public MovieContext(DbContextOptions<MovieContext> options)
+    //: base(options)
+    //    {
+    //    }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -17,6 +22,7 @@ namespace MovieCollection.DAL.Data
                 optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=MovieCollectionDb;Trusted_Connection=True;TrustServerCertificate=True;");
             }
         }
+        
         public DbSet<User> Users { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Genre> Genres { get; set; }

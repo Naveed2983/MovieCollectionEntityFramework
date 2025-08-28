@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34322.80
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMovieCollection", "MyMovieCollection\MyMovieCollection.csproj", "{AD37943B-E4CD-43EA-9F95-50951EC2AB47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyMovieCollection", "MyMovieCollection\MyMovieCollection.csproj", "{AD37943B-E4CD-43EA-9F95-50951EC2AB47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieCollection.Services", "MovieCollection.Services\MovieCollection.Services.csproj", "{69ED5AFE-4B7B-4A29-8DA1-B10C9F2DACBD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MovieCollection.Services", "MovieCollection.Services\MovieCollection.Services.csproj", "{69ED5AFE-4B7B-4A29-8DA1-B10C9F2DACBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieCollection.DAL", "MovieCollection.DAL\MovieCollection.DAL.csproj", "{6C14E247-5DE9-4050-8A20-01EA8768B126}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MovieCollection.DAL", "MovieCollection.DAL\MovieCollection.DAL.csproj", "{6C14E247-5DE9-4050-8A20-01EA8768B126}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieCollection.Core", "MovieCollection.Core\MovieCollection.Core.csproj", "{16A120DE-59CC-4718-A5A0-670370A02554}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MovieCollection.Core", "MovieCollection.Core\MovieCollection.Core.csproj", "{16A120DE-59CC-4718-A5A0-670370A02554}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MovieCollection.Controller", "MovieCollection.Controller\MovieCollection.Controller.csproj", "{7B067A7D-7E38-4120-A01F-999E4991B9F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMovieCollection.Services.Tests", "MyMovieCollection.Services.Tests\MyMovieCollection.Services.Tests.csproj", "{93B43669-C45C-4A72-950E-F19F5FDD1EE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{16A120DE-59CC-4718-A5A0-670370A02554}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16A120DE-59CC-4718-A5A0-670370A02554}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16A120DE-59CC-4718-A5A0-670370A02554}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B067A7D-7E38-4120-A01F-999E4991B9F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B067A7D-7E38-4120-A01F-999E4991B9F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B067A7D-7E38-4120-A01F-999E4991B9F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B067A7D-7E38-4120-A01F-999E4991B9F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93B43669-C45C-4A72-950E-F19F5FDD1EE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93B43669-C45C-4A72-950E-F19F5FDD1EE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93B43669-C45C-4A72-950E-F19F5FDD1EE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93B43669-C45C-4A72-950E-F19F5FDD1EE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
