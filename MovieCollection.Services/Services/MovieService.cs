@@ -40,6 +40,9 @@ namespace MovieCollection.Services.Services
             if (movie.Rating.Votes < 0)
                 throw new Exception("Votes cannot be negative.");
 
+            if (movie.Genres.Count < 0)
+                throw new Exception("Genres can not be null");
+
             var validGenres = await genreRepository.GetAllGenresAsync();
             var validIds = validGenres.Select(g => g.GenreId).ToList();
             foreach (var genre in movie.Genres)
