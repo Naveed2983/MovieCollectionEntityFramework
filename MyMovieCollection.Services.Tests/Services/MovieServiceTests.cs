@@ -10,6 +10,7 @@ using MovieCollection.Services.Services;
 using MovieCollection.Core.Models;
 using MovieCollection.Core.Enums;
 using Microsoft.IdentityModel.Tokens;
+using FluentAssertions;
 
 namespace MyMovieCollection.Services.Tests.Services
 {
@@ -18,7 +19,7 @@ namespace MyMovieCollection.Services.Tests.Services
     {
         private Mock<IMovieRepository> _movieRepositoryMock;
         private Mock<IGenreRepository> _genreRepositoryMock;
-        private IMovieService _movieService;
+        private IMovieService _sut;
 
         [SetUp]
         public void Setup()
@@ -26,13 +27,15 @@ namespace MyMovieCollection.Services.Tests.Services
             _movieRepositoryMock = new Mock<IMovieRepository>();
             _genreRepositoryMock = new Mock<IGenreRepository>();
 
-            _movieService = new MovieService(_movieRepositoryMock.Object, _genreRepositoryMock.Object);
+            _sut = new MovieService(_movieRepositoryMock.Object, _genreRepositoryMock.Object);
         }
 
         [Test]
-        public async Task AddMovieAsync_ValidMovie_ShouldCallRepository()
+        public async Task AddMovieAsync_WhenValidMovie_ShouldCallRepository()
         {
+            // Arrange
             var genres = new List<Genre> { new Genre { GenreId = 1, GenreName = "Action" } };
+
             _genreRepositoryMock.Setup(r => r.GetAllGenresAsync())
                 .ReturnsAsync(genres);
 
@@ -44,36 +47,69 @@ namespace MyMovieCollection.Services.Tests.Services
                 Genres = genres,
                 Rating = new MovieRating { ImdbRating = 9, Votes = 1000, AgeRating = AgeRating.PG13 }
             };
+            
+            // Act
+            await _sut.AddMovieAsync(movie);
 
-            await _movieService.AddMovieAsync(movie);
-
+            // Assert
             _movieRepositoryMock.Verify(r => r.AddMovieAsync(movie), Times.Once);
         }
+
+        //[Test]
+        //[TestCase(" ")]
+        //[TestCase("")]
+        //[TestCase(null)]
+        //public async Task AddMovieAsync_TitleWhiteSpaceOrNull_ThrowsExceptiony(string input)
+        //{
+        //    var genres = new List<Genre> { new Genre { GenreId = 1, GenreName = "Action" } };
+        //    _genreRepositoryMock.Setup(r => r.GetAllGenresAsync())
+        //        .ReturnsAsync(genres);
+
+        //    var movie = new Movie
+        //    {
+        //        Title = " ",
+        //        Duration = 120,
+        //        ReleaseYear = 2010,
+        //        Genres = genres,
+        //        Rating = new MovieRating { ImdbRating = 9, Votes = 1000, AgeRating = AgeRating.PG13 }
+        //    };
+
+        //    var ex = Assert.ThrowsAsync<Exception>(async () =>
+        //        await _sut.AddMovieAsync(movie));
+
+        //    Assert.That(ex.Message, Is.EqualTo("Movie title is required."));
+        //}
+
 
         [Test]
         [TestCase(" ")]
         [TestCase("")]
         [TestCase(null)]
-        public async Task AddMovieAsync_TitleWhiteSpaceOrNull_ThrowsExceptiony(string input)
+        public async Task AddMovieAsync_TitleWhiteSpaceOrNull_ThrowsException(string input)
         {
+            // Arrange
             var genres = new List<Genre> { new Genre { GenreId = 1, GenreName = "Action" } };
             _genreRepositoryMock.Setup(r => r.GetAllGenresAsync())
                 .ReturnsAsync(genres);
 
             var movie = new Movie
             {
-                Title = " ",
+                Title = input,
                 Duration = 120,
                 ReleaseYear = 2010,
                 Genres = genres,
                 Rating = new MovieRating { ImdbRating = 9, Votes = 1000, AgeRating = AgeRating.PG13 }
             };
 
-            var ex = Assert.ThrowsAsync<Exception>(async () =>
-                await _movieService.AddMovieAsync(movie));
+            // Act
+            Func<Task> act = async () => await _sut.AddMovieAsync(movie);
 
-            Assert.That(ex.Message, Is.EqualTo("Movie title is required."));
+            // Assert
+            await act.Should()
+                .ThrowAsync<Exception>()
+                .WithMessage("Movie title is required.");
         }
+
 
         [Test]
         public async Task AddMovieAsync_DurationNegative_ThrowsException()
@@ -92,7 +128,7 @@ namespace MyMovieCollection.Services.Tests.Services
             };
 
             var ex = Assert.ThrowsAsync<Exception>(async () =>
-                await _movieService.AddMovieAsync(movie));
+                await _sut.AddMovieAsync(movie));
 
             Assert.That(ex.Message, Is.EqualTo("Duration must be positive."));
         }
@@ -117,7 +153,7 @@ namespace MyMovieCollection.Services.Tests.Services
             };
 
             var ex = Assert.ThrowsAsync<Exception>(async () =>
-                await _movieService.AddMovieAsync(movie));
+                await _sut.AddMovieAsync(movie));
 
             Assert.That(ex.Message, Is.EqualTo("Release year is invalid."));
         }
@@ -143,7 +179,7 @@ namespace MyMovieCollection.Services.Tests.Services
             movie.Genres = null;
 
             var ex = Assert.ThrowsAsync<Exception>(async () =>
-                await _movieService.AddMovieAsync(movie));
+                await _sut.AddMovieAsync(movie));
 
             Assert.That(ex.Message, Is.EqualTo("IMDb rating must be between 0 and 10."));
         }
@@ -168,7 +204,7 @@ namespace MyMovieCollection.Services.Tests.Services
 
 
             var ex = Assert.ThrowsAsync<Exception>(async () =>
-                await _movieService.AddMovieAsync(movie));
+                await _sut.AddMovieAsync(movie));
 
             Assert.That(ex.Message, Is.EqualTo("Votes cannot be negative."));
         }
@@ -186,7 +222,7 @@ namespace MyMovieCollection.Services.Tests.Services
             };
 
             var ex = Assert.ThrowsAsync<NullReferenceException>(async () =>
-                await _movieService.AddMovieAsync(movie));
+                await _sut.AddMovieAsync(movie));
         }
 
         [Test]
@@ -205,7 +241,7 @@ namespace MyMovieCollection.Services.Tests.Services
                 Rating = null
             };
 
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _movieService.AddMovieAsync(movie));
+            var ex = Assert.ThrowsAsync<Exception>(async () => await _sut.AddMovieAsync(movie));
 
             Assert.That(ex.Message, Is.EqualTo("Rating is required."));
         }
@@ -219,7 +255,7 @@ namespace MyMovieCollection.Services.Tests.Services
 
             _movieRepositoryMock.Setup(r=>r.GetMovieByIdAsync(MovieId,UserId)).ReturnsAsync(movie);
 
-            await _movieService.DeleteMovieAsync(MovieId, UserId);
+            await _sut.DeleteMovieAsync(MovieId, UserId);
 
             _movieRepositoryMock.Verify(r=>r.DeleteMovieAsync(MovieId,UserId), Times.Once());  
         }
@@ -230,7 +266,7 @@ namespace MyMovieCollection.Services.Tests.Services
 
             _movieRepositoryMock.Setup(r => r.GetMovieByIdAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync((Movie)null);
 
-            var ex= Assert.ThrowsAsync<Exception>(()=>_movieService.DeleteMovieAsync(It.IsAny<int>(), It.IsAny<int>()));
+            var ex= Assert.ThrowsAsync<Exception>(()=>_sut.DeleteMovieAsync(It.IsAny<int>(), It.IsAny<int>()));
             Assert.That(ex.Message, Is.EqualTo("Invalid Movie ID."));
 
             _movieRepositoryMock.Verify(r=>r.DeleteMovieAsync(It.IsAny<int>(), It.IsAny<int>()),Times.Never());
@@ -239,18 +275,21 @@ namespace MyMovieCollection.Services.Tests.Services
         public async Task GetAllMoviesByUserIdAsync_WhenMoviesExist_ShouldReturnMovies()
         {
             int UserId = 1;
+            string MovieTitle = "Inception";
+            int duration = 120;
             var movie= new List<Movie>()
             {
-                new Movie{MovieId=1,UserId=UserId},
-                new Movie{MovieId=2,UserId=UserId},
+                new Movie{MovieId = 1,UserId = UserId,Title = MovieTitle, Duration = duration},
+                new Movie{MovieId = 2,UserId = UserId},
             };
             _movieRepositoryMock.Setup(r=>r.GetAllMoviesByUserIdAsync(UserId)).ReturnsAsync(movie);
 
-            var result= await _movieService.GetAllMoviesByUserIdAsync(UserId);
+            var result= await _sut.GetAllMoviesByUserIdAsync(UserId);
 
-            Assert.That(result.Count, Is.EqualTo(2));
-            Assert.That(result, Is.Not.Null);
-           
+            
+            Assert.That(result[0].Title, Is.EqualTo(MovieTitle));
+            Assert.That(result[0].Duration, Is.EqualTo(duration));
+
         }
 
         [Test]
@@ -261,7 +300,7 @@ namespace MyMovieCollection.Services.Tests.Services
             _movieRepositoryMock.Setup(r => r.GetAllMoviesByUserIdAsync(UserId)).ReturnsAsync(movie);
 
             var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _movieService.GetAllMoviesByUserIdAsync(UserId));
+            await _sut.GetAllMoviesByUserIdAsync(UserId));
 
             Assert.That(ex.Message, Is.EqualTo("No movies found."));
         }
@@ -275,7 +314,7 @@ namespace MyMovieCollection.Services.Tests.Services
             _movieRepositoryMock.Setup(r => r.GetAllMoviesByUserIdAsync(UserId)).ReturnsAsync((List<Movie>?)null);
 
             var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await _movieService.GetAllMoviesByUserIdAsync(UserId));
+            await _sut.GetAllMoviesByUserIdAsync(UserId));
 
             Assert.That(ex.Message, Is.EqualTo("No movies found."));
         }
@@ -289,7 +328,7 @@ namespace MyMovieCollection.Services.Tests.Services
             _movieRepositoryMock.Setup(r => r.GetMovieByIdAsync(movieId, userId))
                 .ReturnsAsync(expectedMovie);
 
-            var result = await _movieService.GetMovieByIdAsync(movieId, userId);
+            var result = await _sut.GetMovieByIdAsync(movieId, userId);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.MovieId, Is.EqualTo(movieId));
@@ -303,7 +342,7 @@ namespace MyMovieCollection.Services.Tests.Services
             _movieRepositoryMock.Setup(r => r.GetMovieByIdAsync(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync((Movie?)null);
 
-            var result = await _movieService.GetMovieByIdAsync(It.IsAny<int>(), It.IsAny<int>());
+            var result = await _sut.GetMovieByIdAsync(It.IsAny<int>(), It.IsAny<int>());
 
             Assert.That(result,Is.Null);
         }
@@ -318,7 +357,7 @@ namespace MyMovieCollection.Services.Tests.Services
             _movieRepositoryMock.Setup(r => r.SearchMoviesByUserIdAsync(userId, searchTerm))
                     .ReturnsAsync(expectedMovies);
 
-            var result = await _movieService.SearchMoviesByUserIdAsync(userId, searchTerm);
+            var result = await _sut.SearchMoviesByUserIdAsync(userId, searchTerm);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(1, Is.EqualTo(result.Count));
@@ -332,7 +371,7 @@ namespace MyMovieCollection.Services.Tests.Services
                     .ReturnsAsync(new List<Movie>());
 
             Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await _movieService.SearchMoviesByUserIdAsync(It.IsAny<int>(), It.IsAny<string>()));
+                await _sut.SearchMoviesByUserIdAsync(It.IsAny<int>(), It.IsAny<string>()));
         }
 
         [Test]
@@ -343,7 +382,7 @@ namespace MyMovieCollection.Services.Tests.Services
 
             var updateMovie = new Movie { MovieId = 1, UserId = 1, Title = "new title" };
 
-            _movieService.UpdateMovieAsync(updateMovie);
+            _sut.UpdateMovieAsync(updateMovie);
 
             Assert.That(existingMovie.Title, Is.EqualTo("new title"));
 
@@ -354,7 +393,7 @@ namespace MyMovieCollection.Services.Tests.Services
         {
             _movieRepositoryMock.Setup(r => r.GetMovieByIdAsync(1, 1)).ReturnsAsync((Movie?)null);
             var updateMovie = new Movie { MovieId = 1, UserId = 1};
-            var ex = Assert.ThrowsAsync<Exception>(async () => await _movieService.UpdateMovieAsync(updateMovie));
+            var ex = Assert.ThrowsAsync<Exception>(async () => await _sut.UpdateMovieAsync(updateMovie));
             Assert.That(ex.Message, Is.EqualTo("Movie not found."));
         }
 
@@ -378,29 +417,35 @@ namespace MyMovieCollection.Services.Tests.Services
             };
 
             _genreRepositoryMock.Setup(g=>g.GetGenresByIdsAsync(It.IsAny<List<int>>())).ReturnsAsync(new List<Genre> {  new Genre {  GenreId = 1,GenreName="Action" } });
-            _movieService.UpdateMovieAsync(updateMovie);
+            _sut.UpdateMovieAsync(updateMovie);
             Assert.That(existingMovie.Genres.Count, Is.EqualTo(1));
         }
 
         [Test]
         public async Task UpdateMovieAsync_RatingsUpdated_ShouldUpdateRatings()
         {
+            // Arrange
+            int movieId = 1;
+            int userId = 1;
+
             var existingMovie = new Movie { MovieId = 1, UserId = 1, Rating= new MovieRating() };
-            _movieRepositoryMock.Setup(r=>r.GetMovieByIdAsync(1,1)).ReturnsAsync(existingMovie);
 
             var updateMovie = new Movie
             {
-                MovieId = 1,
-                UserId = 1,
+                MovieId = movieId,
+                UserId = userId,
                 Rating = new MovieRating() { AgeRating = AgeRating.PG13, ImdbRating = 9.3, Votes = 1200 }
             };
 
-            await _movieService.UpdateMovieAsync(updateMovie);
+            _movieRepositoryMock.Setup(r => r.GetMovieByIdAsync(movieId, userId)).ReturnsAsync(existingMovie);
+            
+            // Act
+            await _sut.UpdateMovieAsync(updateMovie);
 
+            // Assert
             Assert.That(existingMovie.Rating, Is.Not.Null);
             Assert.That(existingMovie.Rating.Votes, Is.EqualTo(1200));
             Assert.That(existingMovie.Rating.AgeRating, Is.EqualTo(AgeRating.PG13));
-
 
         }
     }
